@@ -1,0 +1,120 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package assignment_3.model {
+  abstract class BaseEntity {
+    #id : int
+    #name : String
+    +getEntityType() : String
+  }
+
+  class Student {
+    -email : String
+    -age : int
+    +validate() : void
+    +toDisplayString() : String
+  }
+
+  class Course {
+    -credits : int
+    +validate() : void
+    +toDisplayString() : String
+  }
+
+  class Enrollment {
+    -student : Student
+    -course : Course
+    -enrolledAt : LocalDateTime
+    +getEntityType() : String
+  }
+}
+
+package assignment_3.dto {
+  interface Displayable {
+    +toDisplayString() : String
+  }
+
+  interface Validatable {
+    +validate() : void
+  }
+}
+
+package assignment_3.utils {
+  class DatabaseConnection {
+    +getConnection() : Connection
+  }
+}
+
+package assignment_3.repository {
+  class StudentRepository {
+    +findAll(conn : Connection) : List~Student~
+  }
+
+  class CourseRepository {
+    +findAll(conn : Connection) : List~Course~
+  }
+
+  class EnrollmentRepository {
+    +findAll(conn : Connection) : List~Enrollment~
+  }
+}
+
+package assignment_3.service {
+  class StudentService {
+    +getAllStudents(conn : Connection) : List~Student~
+  }
+
+  class CourseService {
+    +getAllCourses(conn : Connection) : List~Course~
+  }
+
+  class EnrollmentService {
+    +getAllEnrollments(conn : Connection) : List~Enrollment~
+  }
+}
+
+package assignment_3.controller {
+  class StudentController {
+    +printAll(conn : Connection) : void
+  }
+
+  class CourseController {
+    +printAll(conn : Connection) : void
+  }
+
+  class EnrollmentController {
+    +printAll(conn : Connection) : void
+  }
+}
+
+package assignment_3.exception {
+  class DatabaseOperationException
+}
+
+BaseEntity <|-- Student
+BaseEntity <|-- Course
+BaseEntity <|-- Enrollment
+
+Displayable <|.. Student
+Validatable <|.. Student
+Displayable <|.. Course
+Validatable <|.. Course
+
+Enrollment *-- Student
+Enrollment *-- Course
+
+StudentController --> StudentService
+StudentService --> StudentRepository
+
+CourseController --> CourseService
+CourseService --> CourseRepository
+
+EnrollmentController --> EnrollmentService
+EnrollmentService --> EnrollmentRepository
+
+StudentRepository --> DatabaseConnection
+CourseRepository --> DatabaseConnection
+EnrollmentRepository --> DatabaseConnection
+
+DatabaseConnection ..> DatabaseOperationException
+@enduml
