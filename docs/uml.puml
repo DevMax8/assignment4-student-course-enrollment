@@ -1,0 +1,94 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' ====== Interfaces ======
+interface Validatable<T> {
+  +validate(dto: T): void
+  {static} +notBlank(s: String): boolean
+}
+
+interface Printable {
+  +toDisplayString(): String
+  {default} +printLine(): void
+}
+
+' ====== Base / Models ======
+abstract class BaseEntity {
+  -id: int
+  -name: String
+  +getId(): int
+  +setId(id: int): void
+  +getName(): String
+  +setName(name: String): void
+  {abstract} +getEntityType(): String
+  {abstract} +toDisplayString(): String
+  +hasValidName(): boolean
+}
+
+class Student {
+  -email: String
+  -age: int
+  +getEmail(): String
+  +getAge(): int
+  +getEntityType(): String
+  +toDisplayString(): String
+}
+
+class Course {
+  -credits: int
+  +getCredits(): int
+  +getEntityType(): String
+  +toDisplayString(): String
+}
+
+class Enrollment {
+  -id: int
+  -studentId: int
+  -courseId: int
+  -enrolledAt: LocalDateTime
+  +toDisplayString(): String
+}
+
+BaseEntity <|-- Student
+BaseEntity <|-- Course
+Printable <|.. Student
+Printable <|.. Course
+Printable <|.. Enrollment
+
+Student "1" -- "0..*" Enrollment : student_id
+Course  "1" -- "0..*" Enrollment : course_id
+
+' ====== Repository layer ======
+interface CrudRepository<T, ID> {
+  +create(entity: T): T
+  +findById(id: ID): Optional<T>
+  +findAll(): List<T>
+  +deleteById(id: ID): boolean
+}
+
+class StudentRepository
+class CourseRepository
+class EnrollmentRepository
+
+CrudRepository <|.. StudentRepository
+CrudRepository <|.. CourseRepository
+CrudRepository <|.. EnrollmentRepository
+
+' ====== Service layer ======
+interface StudentService
+interface CourseService
+interface EnrollmentService
+
+class StudentServiceImpl
+class CourseServiceImpl
+class EnrollmentServiceImpl
+
+StudentService <|.. StudentServiceImpl
+CourseService <|.. CourseServiceImpl
+EnrollmentService <|.. EnrollmentServiceImpl
+
+StudentServiceImpl --> StudentRepository
+CourseServiceImpl  --> CourseRepository
+EnrollmentServiceImpl --> EnrollmentRepository
+
+@enduml
